@@ -1,0 +1,110 @@
+name: Diagnostic Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  environment-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Required Variables
+        id: var-check
+        run: |
+          echo "::group::Checking Required Variables"
+          
+          MISSING_VARS=()
+          
+          echo "Checking APP_ENV..."
+          if [ -z "${{ vars.APP_ENV }}" ]; then
+            echo "::error::APP_ENV is not defined"
+            MISSING_VARS+=("APP_ENV")
+          else
+            echo "APP_ENV is set to: ${{ vars.APP_ENV }}"
+          fi
+          
+          echo "Checking API_KEY..."
+          if [ -z "${{ secrets.API_KEY }}" ]; then
+            echo "::error::API_KEY secret is not defined"
+            MISSING_VARS+=("API_KEY")
+          else
+            echo "API_KEY is configured"
+          fi
+          
+          echo "::endgroup::"
+          
+          if [ ${#MISSING_VARS[@]} -ne 0 ]; then
+            echo "MISSING_COUNT=${#MISSING_VARS[@]}" >> $GITHUB_ENV
+            echo "MISSING_VARS=${MISSING_VARS[*]}" >> $GITHUB_ENV
+            exit 1
+          fi
+
+      - name: System Diagnostics
+        if: success() || failure()
+        run: |
+          echo "::group::System Information"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner Architecture: ${{ runner.arch }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "::endgroup::"
+          
+          echo "::group::Environment Variables"
+          env | grep -v "SECRET\|TOKEN\|KEY"
+          echo "::endgroup::"
+
+      - name: Generate Diagnostic Summary
+        if: always()
+        run: |
+          echo "# Diagnostic Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## Environment Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ success() }}" = "true" ]; then
+            echo "All required variables are properly configured" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Configuration issues detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Missing Variables" >> $GITHUB_STEP_SUMMARY
+            echo "The following variables need to be configured:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            if [[ "${{ env.MISSING_VARS }}" == *"APP_ENV"* ]]; then
+              echo "1. **APP_ENV**" >> $GITHUB_STEP_SUMMARY
+              echo "   - Add as a repository or environment variable" >> $GITHUB_STEP_SUMMARY
+              echo "   - Expected values: dev, staging, prod" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            if [[ "${{ env.MISSING_VARS }}" == *"API_KEY"* ]]; then
+              echo "2. **API_KEY**" >> $GITHUB_STEP_SUMMARY
+              echo "   - Add as a repository or environment secret" >> $GITHUB_STEP_SUMMARY
+              echo "   - Must be kept secure and never exposed in logs" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "### How to Fix" >> $GITHUB_STEP_SUMMARY
+            echo "1. Go to Repository Settings > Secrets and Variables > Actions" >> $GITHUB_STEP_SUMMARY
+            echo "2. Add the missing variables/secrets" >> $GITHUB_STEP_SUMMARY
+            echo "3. Re-run this diagnostic workflow" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## System Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runner**: ${{ runner.os }} (${{ runner.arch }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+
+  notification:
+    needs: environment-check
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Alert
+        run: |
+          echo "::warning::Diagnostic check failed! Please review the diagnostic summary for details on how to fix the configuration issues."
+          echo "::notice::You can re-run this workflow after fixing the issues to verify the configuration." 
