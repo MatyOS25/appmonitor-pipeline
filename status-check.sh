@@ -1,0 +1,3 @@
+uptime
+
+exit 0

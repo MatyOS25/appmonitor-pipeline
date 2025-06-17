@@ -1,0 +1,39 @@
+name: Monitor Runner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'  
+
+jobs:
+  check-environment:
+    runs-on: ubuntu-latest
+    env:
+      SUPPORT_EMAIL: ${{ vars.SUPPORT_EMAIL }}
+    steps:
+      - name: Check Environment Variables
+        run: |
+          echo "Checking environment: ${{ vars.APP_ENV }}"
+          echo "Support contact: $SUPPORT_EMAIL"
+
+  process-data:
+    needs: check-environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process with API
+        env:
+          API_TOKEN: ${{ secrets.API_KEY }}
+        run: |
+          echo "Processing data with API token: ${API_TOKEN:0:4}*** (masked)"
+
+  send-notification:
+    needs: process-data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        run: |
+          if [ "${{ vars.APP_ENV }}" = "dev" ]; then
+            echo "Sending dev notification to ${{ vars.SUPPORT_EMAIL }}"
+          else
+            echo "Sending prod notification"
+          fi 
