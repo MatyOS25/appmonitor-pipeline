@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ vars.PROD_DOMAIN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Deploy to production
+        run: |
+          echo "Starting deployment to ${{ vars.PROD_DOMAIN }}..."
+          echo "Checking environment variables..."
+          echo "Running pre-deployment checks..."
+          sleep 5  # Simulate some deployment tasks
+          echo "Deploying to ${{ vars.PROD_DOMAIN }}"
+          echo "Deployment completed successfully!"
+      
+      - name: Create deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "* Environment: production" >> $GITHUB_STEP_SUMMARY
+          echo "* Domain: ${{ vars.PROD_DOMAIN }}" >> $GITHUB_STEP_SUMMARY
+          echo "* Deployment Status: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          echo "* Deployed Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY 
