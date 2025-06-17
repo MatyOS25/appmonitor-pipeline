@@ -41,7 +41,7 @@ jobs:
           fi
 
       - name: System Diagnostics
-        if: success() || failure()
+        if: always()
         run: |
           echo "::group::System Information"
           echo "Runner OS: ${{ runner.os }}"
@@ -63,7 +63,7 @@ jobs:
           echo "## Environment Status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ success() }}" = "true" ]; then
+          if [ ${{ job.status }} == 'success' ]; then
             echo "All required variables are properly configured" >> $GITHUB_STEP_SUMMARY
           else
             echo "Configuration issues detected" >> $GITHUB_STEP_SUMMARY
