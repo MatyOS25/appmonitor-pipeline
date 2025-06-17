@@ -1,5 +1,7 @@
 # AppMonitor Pipeline
 
+[![CI Status](https://img.shields.io/github/actions/workflow/status/MatyOS25/appmonitor-pipeline/ci.yml?branch=ci%2Fsetup)](https://github.com/MatyOS25/appmonitor-pipeline/actions/workflows/ci.yml)
+
 ## O Papel do Git na Entrega Contínua e a importância das branches e tags
 
 
@@ -41,6 +43,32 @@ Repository: variáveis disponíveis para todos os workflows
 Environment: variáveis específicas para ambientes (staging, production)
 
 Organization: variáveis compartilhadas entre repositórios da organização
+
+
+
+
+
+
+
+
+
+## Logs e Summaries no GitHub Actions
+
+O GitHub Actions oferece ferramentas poderosas para depuração e monitoramento de pipelines:
+
+Logs de Debug são ativados com `ACTIONS_STEP_DEBUG=true` mostrando informações detalhadas de cada step e exibem tempo de execução e recursos utilizados
+
+Job Summaries: resumos personalizados de cada job que suportam markdown para melhor formatação e podem incluir:
+  - Status do ambiente (OS, branch)
+  - Resultados de testes
+  - Links para artefatos
+  - Métricas importantes
+
+Mensagens de Workflow
+- `::warning::` para avisos importantes
+- `::error::` para erros críticos
+Isto aparece destacado na interface do GitHub
+
 
 
 
