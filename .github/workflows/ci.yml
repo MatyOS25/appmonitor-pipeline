@@ -58,7 +58,7 @@ jobs:
           zip report.zip report.txt
       - name: Upload artifact
         id: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: report
           path: report.zip
