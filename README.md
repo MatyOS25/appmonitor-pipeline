@@ -21,3 +21,30 @@ E essas branches são classificadas pelos usuarios a fim de facilitar a identifi
 
 E as tags são usadas para marcar pontos específicos no histórico do projeto, como versões estáveis, releases, etc. É uma forma clara de marcar um ponto de mudança chave no projeto.
 
+
+
+
+
+### Tipos de Variáveis
+
+Vars: armazenam dados não sensíveis, visíveis nos logs do workflow, declarar `APP_ENV=dev` e uso: `${{ vars.NOME_DA_VARIAVEL }}`
+
+Env: definidas no escopo do workflow ou job, disponíveis durante a execução, visíveis nos logs, declarar `SUPPORT_EMAIL=suporte@appmonitor.io` e uso: `${{ env.NOME_DA_VARIAVEL }}`
+
+Secret: armazenam dados sensíveis (tokens, senhas), nunca visíveis nos logs, criptografados(em repouso), declarar: `API_KEY` e uso: `${{ secrets.NOME_DO_SEGREDO }}`
+
+
+Existem contextos que são: repository, environment, organization.
+
+Repository: variáveis disponíveis para todos os workflows
+
+Environment: variáveis específicas para ambientes (staging, production)
+
+Organization: variáveis compartilhadas entre repositórios da organização
+
+
+
+
+
+
+
