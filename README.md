@@ -74,6 +74,9 @@ Isto aparece destacado na interface do GitHub
 
 ## Fotos/Provas estão no diretorio root do projeto.
 
+Extra:
+Gera um issue e coloca usuario que criou o workflow como assignee.
+
 
 
 
