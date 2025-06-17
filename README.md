@@ -72,6 +72,11 @@ Isto aparece destacado na interface do GitHub
 
 
 
+## Fotos/Provas estão no diretorio root do projeto.
+
+
+
+
 
 
 
